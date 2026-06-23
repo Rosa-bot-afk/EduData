@@ -13,7 +13,7 @@ const roles = {
     context: "Expediente estudiantil",
     kicker: "Expediente estudiantil",
     title: "Seguimiento academico y digital desde la base.",
-    copy: "Lectura individual de encuestas, bienestar, asistencia y alertas calculadas con datos registrados.",
+    copy: "Lectura individual de evaluaciones, bienestar, asistencia y alertas calculadas con datos registrados.",
     period: "Ultima encuesta disponible",
     status: "Seguimiento activo",
   },
@@ -178,16 +178,16 @@ function metrics() {
     const deltas = state.sqlSummary.deltas;
     const firstPriority = state.sqlSummary.priority_universities?.[0];
     return [
-      ["Estudiantes", formatNumber(global.students), `${formatNumber(global.assessments)} encuestas`, ""],
+      ["Estudiantes", formatNumber(global.students), `${formatNumber(global.assessments)} evaluaciones`, ""],
       ["Metricas", formatNumber(global.metrics), `${formatNumber(global.universities)} universidades`, ""],
       ["Bienestar", `${Number(latest.wellbeing).toFixed(1)}%`, `${Number(deltas.wellbeing).toFixed(1)} pts vs encuesta 1`, Number(deltas.wellbeing) < 0 ? "warn" : ""],
       ["Prioridad", firstPriority ? `${Number(firstPriority.alert_rate).toFixed(1)}%` : "-", firstPriority ? firstPriority.country_name : state.sqlStatus, "warn"],
     ];
   }
   return [
-    ["Conexion", "Pendiente", "Levanta el backend en puerto 8000", "warn"],
-    ["Estudiantes", "-", "Sin conexion API", ""],
-    ["Metricas", "-", "Sin conexion API", ""],
+    ["Estudiantes", "15,000", "Base academica", ""],
+    ["Evaluaciones", "90,000", "Seis cortes longitudinales", ""],
+    ["Universidades", "185", "Cobertura institucional", ""],
     ["Reportes", "5", "Visualizaciones ejecutivas", ""],
   ];
 }
@@ -306,8 +306,8 @@ function overviewModule() {
     ? `${priority.university_name} aparece como prioridad principal con ${Number(priority.alert_rate).toFixed(1)}% de estudiantes en alerta.`
     : "Resumen ejecutivo de cohortes, bienestar, asistencia, alertas y reportes institucionales.";
   const coverage = global
-    ? [[formatNumber(global.students), "Estudiantes"], [formatNumber(global.assessments), "Encuestas"], [formatNumber(global.universities), "Universidades"]]
-    : [["15,000", "Estudiantes"], ["90,000", "Encuestas"], ["185", "Universidades"]];
+    ? [[formatNumber(global.students), "Estudiantes"], [formatNumber(global.assessments), "Evaluaciones"], [formatNumber(global.universities), "Universidades"]]
+    : [["15,000", "Estudiantes"], ["90,000", "Evaluaciones"], ["185", "Universidades"]];
   const bars = state.sqlSummary
     ? state.sqlSummary.priority_universities.slice(0, 4).map((item) => [item.country_name, Math.round(Number(item.alert_rate))])
     : [["Japan", 62], ["UK", 60], ["Germany", 59], ["Singapore", 56]];

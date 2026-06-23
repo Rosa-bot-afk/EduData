@@ -248,16 +248,11 @@ def dashboard_global():
 def dashboard_summary():
     global_query = """
     SELECT
-        COUNT(DISTINCT S.student_id) AS students,
-        COUNT(DISTINCT U.university_id) AS universities,
-        COUNT(DISTINCT C.country_id) AS countries,
-        COUNT(SA.Assessment_id) AS assessments,
-        COUNT(M.metric_id) AS metrics
-    FROM Student S
-    INNER JOIN University U ON S.university_id = U.university_id
-    INNER JOIN Country C ON U.country_id = C.country_id
-    INNER JOIN StudentAssessment SA ON S.student_id = SA.student_id
-    INNER JOIN Mide M ON SA.Assessment_id = M.Assessment_id;
+        (SELECT COUNT(*) FROM Student) AS students,
+        (SELECT COUNT(*) FROM University) AS universities,
+        (SELECT COUNT(*) FROM Country) AS countries,
+        (SELECT COUNT(*) FROM StudentAssessment) AS assessments,
+        (SELECT COUNT(*) FROM Mide) AS metrics;
     """
     trend_query = """
     SELECT

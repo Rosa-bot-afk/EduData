@@ -151,7 +151,7 @@ p {
   padding: clamp(28px, 4vw, 58px);
   color: white;
   background:
-    linear-gradient(105deg, rgba(9, 17, 31, 0.95), rgba(9, 17, 31, 0.36)),
+    linear-gradient(105deg, rgba(9, 17, 31, 0.96), rgba(9, 17, 31, 0.58)),
     url("https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?auto=format&fit=crop&w=1800&q=82") center/cover;
 }
 
@@ -252,6 +252,7 @@ p {
   gap: 20px;
   min-height: calc(100dvh - 40px);
   padding: clamp(26px, 4vw, 52px);
+  background: rgba(255, 255, 255, 0.96);
 }
 
 .console-topline {
@@ -274,6 +275,7 @@ p {
   font-size: clamp(2.4rem, 4vw, 4.8rem);
   line-height: 0.95;
   letter-spacing: 0;
+  color: var(--ink);
 }
 
 .role-picker {
