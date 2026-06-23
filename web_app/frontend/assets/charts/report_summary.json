@@ -1,0 +1,44 @@
+{
+  "reports": [
+    {
+      "id": "signal_trend",
+      "title": "Tendencia de senales criticas",
+      "insight": "Adiccion digital sube 3.0 puntos y bienestar cae 3.8 entre encuesta 1 y 6.",
+      "image": "assets/charts/report_01_risk_by_survey.png",
+      "kpi": "+3.0",
+      "kpiLabel": "puntos de adiccion"
+    },
+    {
+      "id": "country_alerts",
+      "title": "Paises con mas alerta",
+      "insight": "Japan lidera con 62.5% de estudiantes en alerta.",
+      "image": "assets/charts/report_02_field_indicators.png",
+      "kpi": "62.5%",
+      "kpiLabel": "alerta en Japan"
+    },
+    {
+      "id": "university_priority",
+      "title": "Universidades priorizadas",
+      "insight": "Northbridge University of Tokyo debe revisarse primero por score compuesto.",
+      "image": "assets/charts/report_03_university_accumulation.png",
+      "kpi": 53,
+      "kpiLabel": "casos en universidad #1"
+    },
+    {
+      "id": "field_heatmap",
+      "title": "Alertas por carrera",
+      "insight": "Arts concentra la mayor carga combinada de alertas.",
+      "image": "assets/charts/report_04_prioritized_students.png",
+      "kpi": "Arts",
+      "kpiLabel": "carrera a revisar"
+    },
+    {
+      "id": "action_matrix",
+      "title": "Matriz de intervencion",
+      "insight": "7 universidades caen en zona critica de intervencion.",
+      "image": "assets/charts/report_05_executive_attendance.png",
+      "kpi": 7,
+      "kpiLabel": "universidades criticas"
+    }
+  ]
+}

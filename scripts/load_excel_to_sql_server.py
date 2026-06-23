@@ -1,5 +1,5 @@
 """
-Load the Excel dataset into SQL Server using pypyodbc, following the same
+Load the Excel dataset into SQL Server using pyodbc, following the same
 connection style shown in class.
 
 Before running:
@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Iterable
 
 import pandas as pd
-import pypyodbc
+import pyodbc
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -95,14 +95,14 @@ CODE_MAPS = {
 
 def connect():
     if AUTH_MODE == "windows":
-        return pypyodbc.connect(
+        return pyodbc.connect(
             f"""Driver={{{DRIVER}}};
 Server={SERVER};
 Database={DATABASE};
 Trusted_Connection=yes;"""
         )
 
-    return pypyodbc.connect(
+    return pyodbc.connect(
         f"""Driver={{{DRIVER}}};
 Server={SERVER};
 Database={DATABASE};

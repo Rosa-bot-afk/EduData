@@ -33,7 +33,7 @@ http://localhost:5500
 Instalar:
 
 ```bash
-pip install fastapi uvicorn pypyodbc pydantic[email]
+pip install fastapi uvicorn pyodbc pydantic[email]
 ```
 
 Ejecutar:
@@ -92,7 +92,7 @@ uvicorn web_app.backend.main:app --reload --port 8000
 7. Completar o modificar los datos del estudiante.
 8. Presionar `Calcular riesgo`.
 
-Si el backend esta prendido, la pantalla usa el modelo real. Si el backend esta apagado, la pantalla usa una prediccion demo local para que la interfaz siga funcionando durante la presentacion.
+La pantalla usa el backend para validar usuarios en SQL Server, cargar metricas ejecutivas y ejecutar el modelo predictivo.
 
 La tabla `Estudiantes priorizados por el modelo` usa:
 

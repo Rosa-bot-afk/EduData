@@ -20,7 +20,7 @@ No necesitas el CSV original ni el script de entrenamiento — todo el trabajo d
 Instala estas librerías en el entorno donde corra tu backend:
 
 ```bash
-pip install scikit-learn==1.4.1 pandas joblib
+pip install scikit-learn==1.4.1 numpy joblib
 ```
 
 La versión de `scikit-learn` importa: si usas una muy distinta a 1.4.1, puede salir un warning o incluso fallar al cargar el modelo.

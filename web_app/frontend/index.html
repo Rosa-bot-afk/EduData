@@ -3,155 +3,143 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EduData Analytics</title>
-    <link rel="stylesheet" href="styles.css?v=13" />
+    <meta
+      name="description"
+      content="EduData Analytics es un command center para seguimiento universitario, encuestas, reportes y prediccion de riesgo."
+    />
+    <meta property="og:title" content="EduData Analytics" />
+    <meta property="og:description" content="Command center universitario para bienestar, asistencia y riesgo academico." />
+    <title>EduData Analytics | Intelligence Command</title>
+    <link rel="icon" href="assets/brand/edudata-logo.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=51" />
   </head>
   <body>
-    <section class="login-screen" id="login-screen">
-      <div class="login-media">
-        <div class="brand big">
-          <div class="brand-mark"><img src="assets/brand/edudata-logo.svg" alt="" /></div>
-          <div>
-            <strong>EduData</strong>
-            <span>Analytics</span>
-          </div>
+    <a class="skip-link" href="#workspace">Saltar al contenido</a>
+
+    <section class="access-stage" id="access-stage" aria-labelledby="login-title">
+      <div class="access-art" data-reveal>
+        <nav class="brand-rail" aria-label="Marca">
+          <img src="assets/brand/edudata-logo.svg" alt="EduData Analytics" />
+          <span>EduData Analytics</span>
+        </nav>
+
+        <div class="access-copy">
+          <span class="quiet-code">EduData Analytics</span>
+          <h1 id="login-title">Decisiones universitarias con evidencia real.</h1>
+          <p>
+            Accede al panel institucional, analiza alertas estudiantiles y consulta el modelo predictivo desde una sola plataforma.
+          </p>
         </div>
-        <div class="login-visual">
-          <div class="visual-card visual-card-dark">
-            <span>Risk pulse</span>
-            <strong>72%</strong>
-            <small>seguimiento activo</small>
-          </div>
-          <div class="visual-card visual-card-light">
-            <span>Bienestar</span>
-            <strong>+18</strong>
-            <small>vs. periodo anterior</small>
-          </div>
-          <div class="visual-tower tower-one"></div>
-          <div class="visual-tower tower-two"></div>
-          <div class="visual-tower tower-three"></div>
-        </div>
-        <h1>Analitica universitaria con una vibra mas inteligente.</h1>
-        <p>Explora el portal como estudiante, administrador universitario o empleado EduData sin modificar la base de datos.</p>
-        <div class="login-metrics">
-          <span>15,000 estudiantes</span>
-          <span>90,000 entrevistas</span>
-          <span>185 universidades</span>
+
+        <div class="signal-board" aria-label="Resumen de plataforma">
+          <article>
+            <span>estudiantes</span>
+            <strong>15,000</strong>
+          </article>
+          <article>
+            <span>entrevistas</span>
+            <strong>90,000</strong>
+          </article>
+          <article>
+            <span>universidades</span>
+            <strong>185</strong>
+          </article>
         </div>
       </div>
 
-      <div class="login-panel">
-        <span class="eyebrow">Modo demostracion</span>
-        <h2>Entrar a la plataforma</h2>
-        <p>Selecciona un perfil para navegar la interfaz. Las acciones de crear usuarios y enviar encuestas son simuladas.</p>
-
-        <div class="demo-users">
-          <button class="demo-login active" data-role="student" data-email="student00001_tanzania@student.synthetic.edu" data-password="Pwd00001!2025">
-            <strong>Estudiante</strong>
-            <span>Credencial demo lista</span>
-          </button>
-          <button class="demo-login" data-role="universityAdmin" data-email="admin.universidad@edudata.demo" data-password="AdminUniversidad001!">
-            <strong>Admin universidad</strong>
-            <span>Panel institucional</span>
-          </button>
-          <button class="demo-login" data-role="employee" data-email="camila.torres@synthetic.edu" data-password="AdminCamila003!">
-            <strong>Empleado EduData</strong>
-            <span>Vista corporativa</span>
-          </button>
+      <aside class="access-console" data-reveal>
+        <div class="console-topline">
+          <span>Acceso institucional</span>
+          <small>Plataforma EduData</small>
         </div>
+        <h2>Inicia sesion</h2>
+        <p>Ingresa con tu cuenta institucional para acceder al dashboard, el modelo predictivo y la gestion de usuarios.</p>
 
-        <div class="login-fields">
-          <label>Correo
-            <input id="login-email" type="email" value="student00001_tanzania@student.synthetic.edu" />
+        <div class="credential-grid">
+          <label>
+            Correo
+            <input id="login-email" type="email" value="sofia.ramirez@synthetic.edu" autocomplete="username" />
           </label>
-          <label>Contrasena
-            <input id="login-password" type="password" value="Pwd00001!2025" />
+          <label>
+            Contrasena
+            <input id="login-password" type="password" value="AdminSofia001!" autocomplete="current-password" />
           </label>
         </div>
 
-        <button class="primary-button login-button" id="enter-demo">Ingresar</button>
-      </div>
+        <button class="command-button primary wide" id="enter-system" type="button">
+          <span>Entrar al sistema</span>
+          <i aria-hidden="true">-&gt;</i>
+        </button>
+      </aside>
     </section>
 
-    <div class="app-shell" id="app-shell" hidden>
-      <aside class="sidebar">
-        <div class="brand">
-          <div class="brand-mark"><img src="assets/brand/edudata-logo.svg" alt="" /></div>
+    <div class="product-shell" id="product-shell" hidden>
+      <header class="command-nav">
+        <a class="nav-brand" href="#overview" aria-label="EduData inicio">
+          <img src="assets/brand/edudata-logo.svg" alt="" />
+          <span>EduData</span>
+        </a>
+
+        <nav class="module-dock" aria-label="Modulos">
+          <button class="dock-item active" data-module="overview" type="button">Dashboard</button>
+          <button class="dock-item" data-module="prediction" type="button">Modelo predictivo</button>
+          <button class="dock-item" data-module="people" type="button">Panel de usuarios</button>
+        </nav>
+
+        <div class="operator-card">
+          <span id="active-user">student00001_tanzania</span>
+          <strong id="active-role">Estudiante</strong>
+        </div>
+
+        <button class="command-button ghost" id="logout-button" type="button">Salir</button>
+      </header>
+
+      <main class="workspace" id="workspace" tabindex="-1">
+        <section class="mission-hero" data-reveal>
           <div>
-            <strong>EduData</strong>
-            <span>Analytics</span>
+            <span class="quiet-code" id="mission-kicker">Seguimiento personal</span>
+            <h1 id="mission-title">Tu progreso academico y digital en lectura directa.</h1>
+            <p id="mission-copy">Indicadores personales para saber que mejoro, que empeoro y que requiere atencion antes de la siguiente encuesta.</p>
           </div>
-        </div>
+          <aside class="mission-panel">
+            <span id="mission-context">Northbridge University / Data Science</span>
+            <strong id="mission-period">Encuesta 3 de 6</strong>
+            <small id="mission-status">Riesgo medio en observacion</small>
+          </aside>
+        </section>
 
-        <div class="role-lock">
-          <span>Tipo de usuario</span>
-          <strong id="sidebar-role">Estudiante</strong>
-          <small id="sidebar-user">student00001_tanzania</small>
-        </div>
+        <section class="metric-strip" id="metric-strip" data-reveal></section>
 
-        <div class="sidebar-section">
-          <span class="section-label">Modulo</span>
-          <a class="nav-link active" href="#dashboard">Dashboard</a>
-          <a class="nav-link" href="#survey">Encuestas</a>
-          <a class="nav-link" href="#reports">Reportes</a>
-          <a class="nav-link admin-only" href="#prediction">Prediccion</a>
-          <a class="nav-link" href="#users">Usuarios</a>
-        </div>
-
-        <div class="sidebar-card">
-          <span>Proxima apertura</span>
-          <strong>Encuesta 4</strong>
-          <small>08 Ago 2025</small>
-        </div>
-      </aside>
-
-      <main class="workspace">
-        <header class="topbar">
-          <div>
-            <p class="eyebrow">Plataforma universitaria</p>
-            <h1 id="page-title">Portal del estudiante</h1>
-          </div>
-          <div class="account-cluster">
-            <div class="user-chip">
-              <span id="active-user">student00001</span>
-              <strong id="active-role">Estudiante</strong>
-              <small id="active-context">Northbridge University · Data Science</small>
-            </div>
-            <div class="account-actions">
-              <button class="secondary-button compact-button" id="change-password">Cambiar contraseña</button>
-              <button class="danger-button compact-button" id="logout-button">Cerrar sesión</button>
-            </div>
-          </div>
-        </header>
-
-        <div id="page-root"></div>
+        <section class="intelligence-grid" id="module-root" aria-live="polite"></section>
       </main>
     </div>
 
-    <div class="toast" id="toast" hidden></div>
-    <div class="modal" id="password-modal" hidden>
-      <div class="modal-card">
-        <div class="panel-header">
+    <section class="modal-layer" id="password-modal" hidden>
+      <div class="dialog-card" role="dialog" aria-modal="true" aria-labelledby="password-title">
+        <div class="dialog-head">
           <div>
-            <span class="eyebrow">Seguridad</span>
-            <h3>Cambiar contraseña</h3>
+            <span class="quiet-code">Seguridad</span>
+            <h2 id="password-title">Cambiar contrasena</h2>
           </div>
-          <button class="icon-button" id="close-password-modal" title="Cerrar">x</button>
+          <button class="icon-action" id="close-password-modal" type="button" aria-label="Cerrar">x</button>
         </div>
-        <div class="user-form">
-          <label>Contraseña actual
-            <input id="current-password" type="password" />
-          </label>
-          <label>Nueva contraseña
-            <input id="new-password" type="password" />
-          </label>
-          <label>Confirmar nueva contraseña
-            <input id="confirm-password" type="password" />
-          </label>
-          <button class="primary-button" id="save-password">Guardar contraseña</button>
+        <div class="form-stack">
+          <label>Contrasena actual <input id="current-password" type="password" /></label>
+          <label>Nueva contrasena <input id="new-password" type="password" /></label>
+          <label>Confirmar nueva contrasena <input id="confirm-password" type="password" /></label>
+          <button class="command-button primary wide" id="save-password" type="button">Guardar contrasena</button>
         </div>
       </div>
-    </div>
-    <script src="app.js?v=13"></script>
+    </section>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+    <script src="app.js?v=51"></script>
   </body>
 </html>
