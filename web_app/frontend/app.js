@@ -10,22 +10,22 @@ const roles = {
   student: {
     role: "Estudiante",
     user: "student00001_tanzania",
-    context: "Expediente estudiantil",
+    context: "Kuala Lumpur Institute of Technology / Data Science",
     kicker: "Expediente estudiantil",
-    title: "Seguimiento academico y digital desde la base.",
-    copy: "Lectura individual de evaluaciones, bienestar, asistencia y alertas calculadas con datos registrados.",
-    period: "Ultima encuesta disponible",
-    status: "Seguimiento activo",
+    title: "Completa tus encuestas y revisa tu estado.",
+    copy: "Este acceso solo permite responder encuestas, guardar borradores y consultar el avance de las seis entrevistas programadas.",
+    period: "Encuesta 3 de 6",
+    status: "Encuestas activas",
   },
   universityAdmin: {
-    role: "Administrador",
+    role: "Admin universidad",
     user: "sofia.ramirez.admin",
-    context: "Gestion institucional",
+    context: "Kuala Lumpur Institute of Technology",
     kicker: "Dashboard institucional",
-    title: "Cohortes, asistencia y riesgo con lectura ejecutiva.",
-    copy: "Panel para priorizar universidades, carreras y estudiantes con evidencia operativa.",
+    title: "Resultados, alertas y riesgo de tu universidad.",
+    copy: "Este panel muestra solo los indicadores de la universidad administrada y prioriza estudiantes con el modelo predictivo.",
     period: "Corte operativo 2025",
-    status: "Datos actualizados",
+    status: "Vista institucional",
   },
   employee: {
     role: "Empleado EduData",
@@ -33,10 +33,22 @@ const roles = {
     context: "EduData Analytics / cartera global",
     kicker: "Operacion global",
     title: "Cartera universitaria y senales criticas en una pantalla.",
-    copy: "Supervisa cobertura, alertas, reportes y modelo predictivo con trazabilidad hacia la base normalizada.",
+    copy: "Supervisa resultados globales de todas las universidades, usuarios y reportes ejecutivos de la empresa.",
     period: "Corte operativo",
-    status: "Reportes regenerados con Python",
+    status: "Vista global",
   },
+};
+
+const moduleAccess = {
+  student: ["overview", "people"],
+  universityAdmin: ["overview", "prediction", "people"],
+  employee: ["overview", "people"],
+};
+
+const moduleLabels = {
+  student: { overview: "Mis encuestas", people: "Mi cuenta" },
+  universityAdmin: { overview: "Mi universidad", prediction: "Modelo predictivo", people: "Usuarios" },
+  employee: { overview: "Vista global", people: "Usuarios" },
 };
 
 const state = {
@@ -54,8 +66,8 @@ const state = {
     employee: "AdminCamila003!",
   },
   users: [
-    ["student00001_tanzania", "student00001_tanzania@student.synthetic.edu", "Estudiante", "Northbridge University", "Data Science", "Activo"],
-    ["sofia.ramirez.admin", "sofia.ramirez@synthetic.edu", "Administrador", "EduData Analytics", "No aplica", "Activo"],
+    ["student00001_tanzania", "student00001_tanzania@student.synthetic.edu", "Estudiante", "Kuala Lumpur Institute of Technology", "Data Science", "Activo"],
+    ["sofia.ramirez.admin", "sofia.ramirez@synthetic.edu", "Admin universidad", "Kuala Lumpur Institute of Technology", "No aplica", "Activo"],
     ["camila.torres.admin", "camila.torres@synthetic.edu", "Empleado EduData", "EduData Analytics", "No aplica", "Activo"],
   ],
   predictionInput: {
@@ -80,17 +92,19 @@ const state = {
     risk_level: "Alto",
     recommendation: "Derivar a seguimiento academico y bienestar universitario.",
   },
-  predictionSource: "Pendiente de calculo en backend",
+  predictionSource: "Vista demo institucional hasta conectar SQL Server",
   predictionRankingUniversity: "Kuala Lumpur Institute of Technology",
   predictionRankingLoaded: false,
   currentUser: null,
   sqlSummary: null,
   sqlStatus: "Sin conectar",
   predictionRanking: [
-    { student: "Amina Kato", field_of_study: "Law", dropout_probability_percent: 98.72, risk_level: "Alto", recommendation: "Seguimiento inmediato" },
-    { student: "Daniel Njoroge", field_of_study: "STEM", dropout_probability_percent: 78.41, risk_level: "Alto", recommendation: "Cita con tutor academico" },
+    { student: "Amina Kato", field_of_study: "Law", dropout_probability_percent: 88.72, risk_level: "Alto", recommendation: "Seguimiento inmediato" },
+    { student: "Daniel Njoroge", field_of_study: "STEM", dropout_probability_percent: 71.41, risk_level: "Alto", recommendation: "Cita con tutor academico" },
     { student: "Lucia Ramos", field_of_study: "Business", dropout_probability_percent: 52.18, risk_level: "Medio", recommendation: "Monitoreo preventivo" },
+    { student: "Ravi Menon", field_of_study: "Data Science", dropout_probability_percent: 47.90, risk_level: "Medio", recommendation: "Revision de asistencia y carga academica" },
     { student: "Mei Chen", field_of_study: "Medicine", dropout_probability_percent: 24.35, risk_level: "Bajo", recommendation: "Seguimiento regular" },
+    { student: "Nora Lim", field_of_study: "Business", dropout_probability_percent: 18.64, risk_level: "Bajo", recommendation: "Mantener monitoreo mensual" },
   ],
 };
 
@@ -172,6 +186,22 @@ const sqlReports = [
 ];
 
 function metrics() {
+  if (state.role === "student") {
+    return [
+      ["Encuestas", `${state.surveyCompleted}/6`, "Completadas por el estudiante", ""],
+      ["Siguiente", "08 Ago", "Proxima apertura", ""],
+      ["Estado", state.draftSaved ? "Borrador" : "Al dia", "Avance personal", ""],
+      ["Riesgo", "Medio", "Seguimiento preventivo", "warn"],
+    ];
+  }
+  if (state.role === "universityAdmin") {
+    return [
+      ["Universidad", "78", "Estudiantes activos", ""],
+      ["Encuestas", "468", "Seis entrevistas esperadas", ""],
+      ["Asistencia", "91.6%", "Promedio institucional", ""],
+      ["Riesgo alto", "2", "Casos prioritarios", "warn"],
+    ];
+  }
   if (state.sqlSummary) {
     const global = state.sqlSummary.global;
     const latest = state.sqlSummary.latest;
@@ -205,6 +235,47 @@ function setSelectedRole(role) {
   document.getElementById("login-password").value = state.passwords[role];
 }
 
+function getLocalUser(email, password) {
+  const roleKey = Object.keys(credentials).find((key) => {
+    return credentials[key].email.toLowerCase() === email.toLowerCase() && state.passwords[key] === password;
+  });
+  if (!roleKey) return null;
+
+  const [userName, userEmail, userRole, university, field] =
+    state.users.find((item) => item[1].toLowerCase() === email.toLowerCase()) || [];
+
+  return {
+    user_id: roleKey === "student" ? 1 : roleKey === "universityAdmin" ? 15001 : 15002,
+    email: userEmail || credentials[roleKey].email,
+    user_name: userName || roles[roleKey].user,
+    user_role: roleKey === "student" ? "estudiante" : "administrador",
+    role_key: roleKey,
+    context: [university, field].filter(Boolean).join(" / ") || roles[roleKey].context,
+    university,
+    field_of_study: field,
+  };
+}
+
+function applyAuthenticatedUser(user) {
+  const fallbackUniversity = "Kuala Lumpur Institute of Technology";
+  if (user.role_key === "universityAdmin" && (!user.university || user.context === "EduData Analytics")) {
+    user = {
+      ...user,
+      university: fallbackUniversity,
+      context: fallbackUniversity,
+    };
+  }
+  state.currentUser = user;
+  state.role = user.role_key;
+  state.selectedRole = user.role_key;
+  roles[state.role] = {
+    ...roles[state.role],
+    user: user.user_name,
+    context: user.context || roles[state.role].context,
+    role: user.user_role === "estudiante" ? "Estudiante" : roles[state.role].role,
+  };
+}
+
 async function enterSystem() {
   const email = document.getElementById("login-email").value.trim();
   const password = document.getElementById("login-password").value;
@@ -216,20 +287,18 @@ async function enterSystem() {
     });
     if (!response.ok) throw new Error("Credenciales no validadas");
     const data = await response.json();
-    const user = data.user;
-    state.currentUser = user;
-    state.role = user.role_key;
-    state.selectedRole = user.role_key;
-    roles[state.role] = {
-      ...roles[state.role],
-      user: user.user_name,
-      context: user.context || roles[state.role].context,
-      role: user.user_role === "estudiante" ? "Estudiante" : roles[state.role].role,
-    };
+    applyAuthenticatedUser(data.user);
     loadDashboardSummary();
   } catch (error) {
-    showToast("No se pudo iniciar sesion. Revisa tu correo y contrasena.");
-    return;
+    const localUser = getLocalUser(email, password);
+    if (!localUser) {
+      showToast("No se pudo iniciar sesion. Revisa tu correo y contrasena.");
+      return;
+    }
+    applyAuthenticatedUser(localUser);
+    state.sqlStatus = "Modo demo";
+    state.sqlSummary = null;
+    showToast("Ingreso demo activado sin conectar SQL Server.");
   }
   state.module = "overview";
   document.getElementById("access-stage").hidden = true;
@@ -256,6 +325,9 @@ async function loadDashboardSummary() {
 
 function renderShell() {
   const role = roles[state.role];
+  const allowedModules = moduleAccess[state.role] || ["overview"];
+  if (!allowedModules.includes(state.module)) state.module = "overview";
+
   document.getElementById("active-user").textContent = role.user;
   document.getElementById("active-role").textContent = role.role;
   document.getElementById("mission-kicker").textContent = role.kicker;
@@ -265,11 +337,10 @@ function renderShell() {
   document.getElementById("mission-period").textContent = role.period;
   document.getElementById("mission-status").textContent = role.status;
 
-  document.querySelectorAll(".admin-module").forEach((item) => {
-    item.hidden = state.role === "student";
-  });
-  if (state.module === "prediction" && state.role === "student") state.module = "overview";
   document.querySelectorAll(".dock-item").forEach((item) => {
+    const visible = allowedModules.includes(item.dataset.module);
+    item.hidden = !visible;
+    if (visible) item.textContent = moduleLabels[state.role]?.[item.dataset.module] || item.textContent;
     item.classList.toggle("active", item.dataset.module === state.module);
   });
 
@@ -288,6 +359,11 @@ function renderShell() {
 }
 
 function setModule(module) {
+  const allowedModules = moduleAccess[state.role] || ["overview"];
+  if (!allowedModules.includes(module)) {
+    showToast("Este modulo no esta disponible para tu tipo de usuario.");
+    return;
+  }
   state.module = module;
   window.scrollTo({ top: 0, behavior: "auto" });
   renderShell();
@@ -300,34 +376,43 @@ function renderModule() {
 }
 
 function overviewModule() {
+  if (state.role === "student") return surveyModule();
+
   const priority = state.sqlSummary?.priority_universities?.[0];
   const global = state.sqlSummary?.global;
-  const insight = priority
+  const isUniversityAdmin = state.role === "universityAdmin";
+  const insight = isUniversityAdmin
+    ? "Resultados institucionales de Kuala Lumpur Institute of Technology: asistencia, bienestar, carreras y alertas del periodo actual."
+    : priority
     ? `${priority.university_name} aparece como prioridad principal con ${Number(priority.alert_rate).toFixed(1)}% de estudiantes en alerta.`
     : "Resumen ejecutivo de cohortes, bienestar, asistencia, alertas y reportes institucionales.";
-  const coverage = global
+  const coverage = isUniversityAdmin
+    ? [["78", "Estudiantes"], ["468", "Evaluaciones"], ["4", "Carreras"]]
+    : global
     ? [[formatNumber(global.students), "Estudiantes"], [formatNumber(global.assessments), "Evaluaciones"], [formatNumber(global.universities), "Universidades"]]
     : [["15,000", "Estudiantes"], ["90,000", "Evaluaciones"], ["185", "Universidades"]];
-  const bars = state.sqlSummary
+  const bars = isUniversityAdmin
+    ? [["Medicine", 88], ["Business", 84], ["STEM", 81], ["Law", 76]]
+    : state.sqlSummary
     ? state.sqlSummary.priority_universities.slice(0, 4).map((item) => [item.country_name, Math.round(Number(item.alert_rate))])
     : [["Japan", 62], ["UK", 60], ["Germany", 59], ["Singapore", 56]];
 
   return `
     <article class="glass-cell span-7">
       <div class="cell-head">
-        <div><span class="quiet-code">Dashboard</span><h2>Resumen ejecutivo</h2></div>
+        <div><span class="quiet-code">${isUniversityAdmin ? "Dashboard universidad" : "Dashboard global"}</span><h2>${isUniversityAdmin ? "Kuala Lumpur Institute of Technology" : "Resumen ejecutivo"}</h2></div>
         <span class="status-chip">Actualizado</span>
       </div>
       <p>${insight}</p>
       ${insightRow(coverage)}
-      <div class="action-row"><button class="command-button primary" data-module="prediction">Abrir modelo predictivo</button><button class="command-button ghost" data-module="people">Panel de usuarios</button></div>
+      <div class="action-row">${isUniversityAdmin ? `<button class="command-button primary" data-module="prediction">Abrir modelo predictivo</button>` : ""}<button class="command-button ghost" data-module="people">Panel de usuarios</button></div>
     </article>
     <article class="glass-cell span-5 report-filter-cell">
-      <div class="cell-head"><div><span class="quiet-code">Prioridad</span><h3>Alertas por pais</h3></div></div>
+      <div class="cell-head"><div><span class="quiet-code">Prioridad</span><h3>${isUniversityAdmin ? "Carreras de la universidad" : "Alertas por pais"}</h3></div></div>
       ${miniBars(bars)}
     </article>
     <article class="glass-cell span-12">
-      <div class="cell-head"><div><span class="quiet-code">Reportes</span><h2>Visualizaciones ejecutivas</h2></div><span class="status-chip">5 graficos</span></div>
+      <div class="cell-head"><div><span class="quiet-code">Reportes</span><h2>${isUniversityAdmin ? "Visualizaciones de la universidad" : "Visualizaciones ejecutivas globales"}</h2></div><span class="status-chip">5 graficos</span></div>
       ${reportGallery()}
     </article>
     <article class="glass-cell span-8">
@@ -398,12 +483,20 @@ function reportsModule() {
 }
 
 function predictionModule() {
+  if (state.role !== "universityAdmin") {
+    return `
+      <article class="glass-cell span-12">
+        <div class="cell-head"><div><span class="quiet-code">Acceso restringido</span><h2>Modelo predictivo institucional</h2></div></div>
+        <p>El modelo predictivo esta disponible solo para administradores de universidad, usando estudiantes de su propia institucion.</p>
+      </article>
+    `;
+  }
   const result = state.predictionResult;
   const probability = Number(result.dropout_probability_percent || 0);
   const riskClass = riskClassFor(result.risk_level);
   return `
     <article class="glass-cell span-8">
-      <div class="cell-head"><div><span class="quiet-code">Modelo predictivo</span><h2>Workbench de riesgo estudiantil</h2></div><span class="risk-pill ${riskClass}">${result.risk_level}</span></div>
+      <div class="cell-head"><div><span class="quiet-code">Modelo predictivo</span><h2>Riesgo estudiantil de ${state.predictionRankingUniversity}</h2></div><span class="risk-pill ${riskClass}">${result.risk_level}</span></div>
       <div class="form-grid prediction-form">
         <label>Estudiante <input id="predict-student-name" value="${state.predictionInput.studentName}" /></label>
         <label>Carrera <select id="predict-field"><option ${selected("Law", state.predictionInput.fieldOfStudy)}>Law</option><option ${selected("Medicine", state.predictionInput.fieldOfStudy)}>Medicine</option><option ${selected("Business", state.predictionInput.fieldOfStudy)}>Business</option><option ${selected("STEM", state.predictionInput.fieldOfStudy)}>STEM</option></select></label>
@@ -415,7 +508,7 @@ function predictionModule() {
         <label>Edad <input id="predict-age" type="number" min="14" max="80" value="${state.predictionInput.age}" /></label>
         <label>Atencion <input id="predict-attention" type="number" min="1" max="180" value="${state.predictionInput.attention_span_minutes}" /></label>
       </div>
-      <div class="action-row"><button class="command-button primary" id="run-prediction">Calcular riesgo</button><button class="command-button ghost" id="load-risk-ranking">Ranking institucional</button><button class="command-button ghost" id="load-high-risk-case">Caso de alto riesgo</button></div>
+      <div class="action-row"><button class="command-button primary" id="load-risk-ranking">Cargar ranking de mi universidad</button><button class="command-button ghost" id="run-prediction">Calcular caso manual</button><button class="command-button ghost" id="load-high-risk-case">Caso de alto riesgo</button></div>
     </article>
     <article class="glass-cell span-4">
       <span class="quiet-code">Resultado</span>
@@ -427,7 +520,7 @@ function predictionModule() {
     <article class="glass-cell span-12">
       <div class="cell-head"><div><span class="quiet-code">Explicacion para exposicion</span><h2>Modelo predictivo de desercion estudiantil</h2></div><span class="status-chip">Regresion logistica</span></div>
       <div class="model-explain">
-        <article><strong>Objetivo</strong><p>Estimar la probabilidad de desercion para priorizar acompanamiento academico y bienestar universitario.</p></article>
+        <article><strong>Objetivo</strong><p>Estimar la probabilidad de desercion solo para estudiantes de la universidad administrada.</p></article>
         <article><strong>Variables usadas</strong><p>Asistencia, motivacion, horas de estudio, uso de internet, brain rot, atencion, contexto socioeconomico e infraestructura digital.</p></article>
         <article><strong>Interpretacion</strong><p>El porcentaje no sentencia al estudiante. Es una alerta temprana para que un equipo humano revise el caso.</p></article>
         <article><strong>Accion recomendada</strong><p>Riesgo alto: seguimiento inmediato. Riesgo medio: monitoreo preventivo. Riesgo bajo: seguimiento regular.</p></article>
@@ -439,13 +532,18 @@ function predictionModule() {
 
 function peopleModule() {
   const canCreate = state.role !== "student";
+  const visibleUsers = state.role === "universityAdmin"
+    ? state.users.filter((user) => user[3] === "Kuala Lumpur Institute of Technology" || user[1] === credentials.universityAdmin.email)
+    : state.role === "student"
+      ? state.users.filter((user) => user[1] === credentials.student.email)
+      : state.users;
   return `
     <article class="glass-cell ${canCreate ? "span-7" : "span-8"}">
       <div class="cell-head"><div><span class="quiet-code">Cuenta</span><h2>${canCreate ? "Crear y revisar accesos" : "Mi cuenta"}</h2></div></div>
       ${canCreate ? `
         <div class="form-grid">
           <label>Correo <input id="new-email" type="email" placeholder="nuevo@universidad.edu" /></label>
-          <label>Rol <select id="new-role"><option>Estudiante</option><option>Admin universidad</option><option>Empleado EduData</option></select></label>
+          <label>Rol <select id="new-role"><option>Estudiante</option><option>Admin universidad</option>${state.role === "employee" ? "<option>Empleado EduData</option>" : ""}</select></label>
           <label>Usuario <input id="new-user" placeholder="usuario.institucional" /></label>
           <label>Universidad/empresa <input id="new-org" placeholder="Northbridge University" /></label>
           <label>Carrera <input id="new-field" placeholder="Data Science" /></label>
@@ -458,7 +556,7 @@ function peopleModule() {
       ${profileGrid()}
       <button class="command-button ghost" id="change-password-inline" type="button">Cambiar contrasena</button>
     </article>
-    ${tableModule("Usuarios del entorno", ["Usuario", "Correo", "Rol", "Universidad/empresa", "Carrera", "Estado"], state.users, "span-12")}
+    ${tableModule(state.role === "employee" ? "Usuarios globales" : "Usuarios de mi universidad", ["Usuario", "Correo", "Rol", "Universidad/empresa", "Carrera", "Estado"], visibleUsers, "span-12")}
   `;
 }
 
@@ -607,7 +705,9 @@ function bindModuleEvents() {
     const email = document.getElementById("new-email").value.trim();
     const role = document.getElementById("new-role").value;
     const username = document.getElementById("new-user").value.trim() || email.split("@")[0];
-    const org = document.getElementById("new-org").value.trim() || "Northbridge University";
+    const org = state.role === "universityAdmin"
+      ? "Kuala Lumpur Institute of Technology"
+      : document.getElementById("new-org").value.trim() || "Kuala Lumpur Institute of Technology";
     const field = document.getElementById("new-field").value.trim() || (role === "Estudiante" ? "Data Science" : "No aplica");
     if (!email) {
       showToast("Ingresa un correo para crear el usuario.");
@@ -686,8 +786,10 @@ async function predictDropout() {
 }
 
 async function loadUniversityRiskRanking() {
+  const university = state.currentUser?.university || state.predictionRankingUniversity;
+  const encodedUniversity = encodeURIComponent(university);
   try {
-    const response = await fetch("http://127.0.0.1:8000/predictions/university-risk?university_name=Kuala%20Lumpur%20Institute%20of%20Technology&limit=10&view=mixed");
+    const response = await fetch(`http://127.0.0.1:8000/predictions/university-risk?university_name=${encodedUniversity}&limit=10&view=mixed`);
     if (!response.ok) throw new Error("Backend unavailable");
     const data = await response.json();
     state.predictionRanking = data.results.map((item) => ({
@@ -711,10 +813,13 @@ async function loadUniversityRiskRanking() {
       };
       state.predictionSource = "Ranking institucional";
     }
+    state.predictionSource = `Modelo real conectado a SQL Server: ${data.university}`;
     showToast(`Ranking real cargado: ${data.students_evaluated} estudiantes evaluados.`);
   } catch (error) {
     state.predictionRankingLoaded = true;
-    showToast("No se pudo cargar el ranking institucional.");
+    state.predictionRankingUniversity = university;
+    state.predictionSource = `Vista demo institucional: ${university}`;
+    showToast("No se pudo conectar SQL Server; se mantiene ranking demo variado.");
   }
   renderShell();
 }
