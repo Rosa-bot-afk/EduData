@@ -825,6 +825,45 @@ select:focus {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.range-field {
+  gap: 9px;
+}
+
+.range-field > span {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.range-field input[type="range"] {
+  width: 100%;
+  accent-color: var(--blue);
+}
+
+.range-meta {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-family: "Fira Code", monospace;
+  font-size: 0.72rem;
+}
+
+.range-meta output {
+  min-width: 70px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #f8fbff;
+  color: var(--blue);
+  padding: 5px 9px;
+  text-align: center;
+  font-weight: 800;
+}
+
+.range-meta small:last-child {
+  text-align: right;
+}
+
 .table-shell {
   overflow: hidden;
   border: 1px solid var(--line);
@@ -907,6 +946,212 @@ tr:hover td {
   gap: 12px;
 }
 
+.report-controls {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.2fr) repeat(2, minmax(140px, 0.6fr)) auto;
+  align-items: end;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #f8fbff;
+  padding: 12px;
+}
+
+.dynamic-report-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: stretch;
+  margin-bottom: 14px;
+  border: 1px solid #dbe5f1;
+  border-radius: 10px;
+  background: #f8fafc;
+  box-shadow: 0 14px 32px rgba(15, 41, 72, 0.08);
+  padding: 18px;
+}
+
+.python-report-card {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 14px;
+  border: 1px solid #dbe5f1;
+  border-radius: 10px;
+  background: #f8fafc;
+  box-shadow: 0 14px 32px rgba(15, 41, 72, 0.08);
+  padding: 18px;
+}
+
+.python-chart {
+  display: block;
+  width: 100%;
+  min-height: 360px;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.chart-loading {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-family: "Fira Code", monospace;
+  font-weight: 800;
+}
+
+.mini-python-chart {
+  min-height: 170px;
+  max-height: 220px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+}
+
+.institution-report-preview {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  min-height: 170px;
+  border-bottom: 1px solid var(--line);
+  background:
+    repeating-linear-gradient(0deg, transparent 0, transparent 28px, rgba(37, 99, 235, 0.08) 29px),
+    linear-gradient(135deg, #ffffff, #eef6ff);
+  padding: 18px;
+}
+
+.institution-report-preview span {
+  width: max-content;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  padding: 6px 10px;
+  font-family: "Fira Code", monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.institution-report-preview strong {
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+.dynamic-report-copy {
+  display: grid;
+  gap: 8px;
+  max-width: 920px;
+}
+
+.dynamic-report-copy strong {
+  color: var(--ink);
+  font-size: 1.35rem;
+  line-height: 1.05;
+}
+
+.dynamic-report-copy em,
+.report-card em {
+  width: max-content;
+  max-width: 100%;
+  border-radius: 999px;
+  background: #eef6ff;
+  color: var(--blue);
+  padding: 7px 10px;
+  font-family: "Fira Code", monospace;
+  font-size: 0.74rem;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.svg-chart {
+  width: 100%;
+  min-height: 390px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(0deg, transparent 0, transparent 48px, #e6edf6 49px, transparent 50px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 251, 255, 0.96)),
+    #fff;
+}
+
+.bar-chart {
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  padding: 16px;
+}
+
+.bar-chart article {
+  display: grid;
+  grid-template-columns: minmax(110px, 170px) minmax(0, 1fr) 54px;
+  align-items: center;
+  gap: 10px;
+}
+
+.chart-track {
+  height: 13px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e8eef6;
+}
+
+.chart-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.line-chart,
+.matrix-chart {
+  display: block;
+  padding: 10px;
+}
+
+.line-chart text,
+.matrix-chart text {
+  fill: var(--muted);
+  font-family: "Fira Code", monospace;
+  font-size: 5px;
+}
+
+.matrix-chart line {
+  stroke: #d8e4f2;
+  stroke-width: 1.2;
+}
+
+.heat-chart {
+  display: grid;
+  align-content: center;
+  gap: 8px;
+  padding: 14px;
+}
+
+.heat-chart article {
+  display: grid;
+  grid-template-columns: minmax(90px, 130px) repeat(3, minmax(44px, 1fr));
+  gap: 8px;
+  align-items: center;
+}
+
+.heat-chart i {
+  display: grid;
+  place-items: center;
+  min-height: 34px;
+  border-radius: 10px;
+  color: #fff;
+  font-family: "Fira Code", monospace;
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.empty-chart {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  color: var(--muted);
+  font-family: "Fira Code", monospace;
+  font-size: 0.86rem;
+}
+
 .report-card {
   overflow: hidden;
   border: 1px solid rgba(40, 75, 123, 0.14);
@@ -915,23 +1160,26 @@ tr:hover td {
     linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 250, 255, 0.92)),
     #fff;
   box-shadow: 0 18px 40px rgba(15, 41, 72, 0.08);
+  cursor: pointer;
+  transition:
+    border-color 180ms var(--ease),
+    transform 180ms var(--ease),
+    box-shadow 180ms var(--ease);
 }
 
-.report-card.featured-report {
-  grid-column: 1 / -1;
+.report-card:hover,
+.report-card.selected-report {
+  transform: translateY(-2px);
+  border-color: rgba(37, 99, 235, 0.45);
+  box-shadow: 0 22px 48px rgba(15, 41, 72, 0.13);
 }
 
-.report-card img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: contain;
-  background: #ffffff;
+.mini-chart .svg-chart {
+  min-height: 170px;
+  border: 0;
   border-bottom: 1px solid var(--line);
-}
-
-.report-card.featured-report img {
-  aspect-ratio: 18 / 8;
+  border-radius: 0;
+  background: #fff;
 }
 
 .report-card div {
@@ -1137,7 +1385,9 @@ tr:hover td {
   .form-grid,
   .prediction-form,
   .chart-wall,
+  .report-controls,
   .report-gallery,
+  .dynamic-report-card,
   .model-explain {
     grid-template-columns: 1fr;
   }
@@ -1185,12 +1435,16 @@ tr:hover td {
     grid-column: auto;
   }
 
-  .report-card.featured-report {
-    grid-column: auto;
+  .dynamic-report-card {
+    padding: 12px;
   }
 
-  .report-card img,
-  .report-card.featured-report img {
-    aspect-ratio: 4 / 3;
+  .svg-chart {
+    min-height: 220px;
+  }
+
+  .bar-chart article,
+  .heat-chart article {
+    grid-template-columns: 1fr;
   }
 }

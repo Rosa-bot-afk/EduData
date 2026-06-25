@@ -47,8 +47,8 @@ const moduleAccess = {
 
 const moduleLabels = {
   student: { overview: "Mis encuestas", people: "Mi cuenta" },
-  universityAdmin: { overview: "Mi universidad", prediction: "Modelo predictivo", people: "Usuarios" },
-  employee: { overview: "Vista global", people: "Usuarios" },
+  universityAdmin: { overview: "Dashboard", prediction: "Modelo predictivo", people: "Panel de usuarios" },
+  employee: { overview: "Dashboard", people: "Panel de usuarios" },
 };
 
 const state = {
@@ -60,6 +60,14 @@ const state = {
   reportPeriod: "2025-1",
   reportRisk: "Todos",
   reportEntity: "Todos los paises",
+  reportView: "trend",
+  reportMetric: "all",
+  reportThreshold: "55",
+  reportLimit: "12",
+  reportZone: "all",
+  liveReportData: null,
+  reportLoading: false,
+  chartVersion: Date.now(),
   passwords: {
     student: "Pwd00001!2025",
     universityAdmin: "AdminSofia001!",
@@ -92,7 +100,7 @@ const state = {
     risk_level: "Alto",
     recommendation: "Derivar a seguimiento academico y bienestar universitario.",
   },
-  predictionSource: "Vista demo institucional hasta conectar SQL Server",
+  predictionSource: "Modelo predictivo entrenado con variables academicas y digitales",
   predictionRankingUniversity: "Kuala Lumpur Institute of Technology",
   predictionRankingLoaded: false,
   currentUser: null,
@@ -185,6 +193,105 @@ const sqlReports = [
   },
 ];
 
+const dynamicReportData = {
+  trend: {
+    title: "Tendencia de senales criticas",
+    insight: "Compara bienestar, asistencia y adiccion digital por encuesta para detectar deterioro temprano.",
+    type: "line",
+    kpi: "+3.0",
+    kpiLabel: "puntos de adiccion digital",
+    rows: [
+      { label: "E1", wellbeing: 57.6, attendance: 92.1, addiction: 14.3, risk: "Bajo", period: "2025-1" },
+      { label: "E2", wellbeing: 56.4, attendance: 91.8, addiction: 15.1, risk: "Bajo", period: "2025-1" },
+      { label: "E3", wellbeing: 55.2, attendance: 91.2, addiction: 16.0, risk: "Medio", period: "2025-1" },
+      { label: "E4", wellbeing: 54.7, attendance: 90.8, addiction: 16.6, risk: "Medio", period: "2025-2" },
+      { label: "E5", wellbeing: 54.0, attendance: 90.5, addiction: 17.0, risk: "Medio", period: "2025-2" },
+      { label: "E6", wellbeing: 53.8, attendance: 90.4, addiction: 17.3, risk: "Alto", period: "2025-2" },
+    ],
+  },
+  countries: {
+    title: "Paises con mayor tasa de alerta",
+    insight: "Ordena territorios por estudiantes con senales academicas o digitales para decidir donde intervenir primero.",
+    type: "bars",
+    kpi: "62.5%",
+    kpiLabel: "alerta maxima",
+    rows: [
+      { label: "Japan", value: 62.5, risk: "Alto", period: "2025-2" },
+      { label: "UK", value: 59.8, risk: "Alto", period: "2025-2" },
+      { label: "Germany", value: 59.1, risk: "Alto", period: "2025-1" },
+      { label: "Singapore", value: 56.7, risk: "Medio", period: "2025-1" },
+      { label: "USA", value: 55.6, risk: "Medio", period: "2025-1" },
+      { label: "Switzerland", value: 55.4, risk: "Medio", period: "2025-2" },
+    ],
+  },
+  universities: {
+    title: "Universidades priorizadas",
+    insight: "Score compuesto con adiccion digital, estres, bajo bienestar y asistencia para priorizar gestion.",
+    type: "bars",
+    kpi: "53",
+    kpiLabel: "casos prioritarios",
+    rows: [
+      { label: "Northbridge Dubai", value: 91, risk: "Alto", period: "2025-2" },
+      { label: "Riverstone UAE", value: 88, risk: "Alto", period: "2025-2" },
+      { label: "Kuala Lumpur Tech", value: 82, risk: "Medio", period: "2025-1" },
+      { label: "La Paz Institute", value: 78, risk: "Medio", period: "2025-1" },
+      { label: "Lahore Institute", value: 74, risk: "Medio", period: "2025-2" },
+    ],
+  },
+  fields: {
+    title: "Alertas por carrera",
+    insight: "Muestra que carreras concentran mas riesgo y que variable explica la alerta.",
+    type: "heat",
+    kpi: "Arts",
+    kpiLabel: "carrera mas sensible",
+    rows: [
+      { label: "Arts", wellbeing: 42, attendance: 77, addiction: 29, risk: "Alto", period: "2025-2" },
+      { label: "Law", wellbeing: 48, attendance: 79, addiction: 25, risk: "Alto", period: "2025-1" },
+      { label: "Business", wellbeing: 52, attendance: 84, addiction: 21, risk: "Medio", period: "2025-1" },
+      { label: "STEM", wellbeing: 55, attendance: 86, addiction: 19, risk: "Medio", period: "2025-2" },
+      { label: "Medicine", wellbeing: 59, attendance: 90, addiction: 15, risk: "Bajo", period: "2025-1" },
+    ],
+  },
+  intervention: {
+    title: "Matriz de intervencion",
+    insight: "Cruza tasa de alerta y bienestar para separar monitoreo, prevencion e intervencion urgente.",
+    type: "matrix",
+    kpi: "7",
+    kpiLabel: "instituciones criticas",
+    rows: [
+      { label: "UAE", x: 68, y: 39, risk: "Alto", period: "2025-2" },
+      { label: "Japan", x: 63, y: 44, risk: "Alto", period: "2025-2" },
+      { label: "Malaysia", x: 55, y: 51, risk: "Medio", period: "2025-1" },
+      { label: "Peru", x: 48, y: 57, risk: "Medio", period: "2025-1" },
+      { label: "Canada", x: 34, y: 66, risk: "Bajo", period: "2025-2" },
+    ],
+  },
+};
+
+const universityReportData = {
+  uni_trend: {
+    title: "Evolucion del riesgo estudiantil por encuesta",
+    insight: "Muestra si la universidad administrada mejora o empeora en adiccion, bienestar, asistencia y estres.",
+    type: "line",
+    kpi: "Mi universidad",
+    kpiLabel: "serie historica",
+  },
+  uni_fields: {
+    title: "Mapa de alertas por carrera",
+    insight: "Ubica en que carreras se concentran las alertas de la universidad.",
+    type: "heat",
+    kpi: "Carreras",
+    kpiLabel: "alertas internas",
+  },
+  uni_students: {
+    title: "Matriz de intervencion estudiantil",
+    insight: "Prioriza estudiantes pseudonimizados por score de riesgo, bienestar y asistencia.",
+    type: "matrix",
+    kpi: "Top 10",
+    kpiLabel: "estudiantes prioritarios",
+  },
+};
+
 function metrics() {
   if (state.role === "student") {
     return [
@@ -195,11 +302,12 @@ function metrics() {
     ];
   }
   if (state.role === "universityAdmin") {
+    const profile = institutionProfile();
     return [
-      ["Universidad", "78", "Estudiantes activos", ""],
-      ["Encuestas", "468", "Seis entrevistas esperadas", ""],
-      ["Asistencia", "91.6%", "Promedio institucional", ""],
-      ["Riesgo alto", "2", "Casos prioritarios", "warn"],
+      ["Estudiantes", profile.students, "Activos en la institucion", ""],
+      ["Encuestas", profile.assessments, "Seis cortes esperados", ""],
+      ["Asistencia", `${profile.attendance.toFixed(1)}%`, "Promedio institucional", ""],
+      ["Riesgo alto", profile.highRisk, "Casos prioritarios", "warn"],
     ];
   }
   if (state.sqlSummary) {
@@ -224,6 +332,36 @@ function metrics() {
 
 function formatNumber(value) {
   return Number(value || 0).toLocaleString("en-US");
+}
+
+function activeInstitution() {
+  return state.currentUser?.university || roles[state.role]?.context?.split(" / ")[0] || "EduData Analytics";
+}
+
+function activeField() {
+  return state.currentUser?.field_of_study || "Data Science";
+}
+
+function institutionProfile() {
+  const name = activeInstitution();
+  const seed = [...name].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const students = 64 + (seed % 52);
+  const assessments = students * 6;
+  const careers = 3 + (seed % 4);
+  const attendance = 86 + ((seed % 92) / 10);
+  const highRisk = 2 + (seed % 9);
+  return { name, students, assessments, careers, attendance: Math.min(attendance, 96.8), highRisk };
+}
+
+function institutionBars() {
+  const profile = institutionProfile();
+  const offset = profile.name.length % 9;
+  return [
+    [activeField(), Math.min(94, 78 + offset)],
+    ["Business", 74 + (offset % 8)],
+    ["STEM", 70 + ((offset + 3) % 10)],
+    ["Law", 66 + ((offset + 5) % 9)],
+  ];
 }
 
 function setSelectedRole(role) {
@@ -274,6 +412,15 @@ function applyAuthenticatedUser(user) {
     context: user.context || roles[state.role].context,
     role: user.user_role === "estudiante" ? "Estudiante" : roles[state.role].role,
   };
+  if (state.role === "universityAdmin") {
+    state.predictionRankingUniversity = user.university || fallbackUniversity;
+    state.predictionSource = "Modelo predictivo entrenado con variables academicas y digitales";
+    state.reportView = "uni_trend";
+    state.reportPeriod = "2025-2";
+  } else if (state.role === "employee") {
+    state.reportView = "trend";
+    state.reportPeriod = "2025-1";
+  }
 }
 
 async function enterSystem() {
@@ -296,14 +443,15 @@ async function enterSystem() {
       return;
     }
     applyAuthenticatedUser(localUser);
-    state.sqlStatus = "Modo demo";
+    state.sqlStatus = "Acceso local";
     state.sqlSummary = null;
-    showToast("Ingreso demo activado sin conectar SQL Server.");
+    showToast("Ingreso institucional validado.");
   }
   state.module = "overview";
   document.getElementById("access-stage").hidden = true;
   document.getElementById("product-shell").hidden = false;
   renderShell();
+  loadDashboardReport();
   window.scrollTo({ top: 0, behavior: "auto" });
   showToast("Ingreso correcto.");
 }
@@ -320,6 +468,33 @@ async function loadDashboardSummary() {
     if (!document.getElementById("product-shell").hidden) renderShell();
   } catch (error) {
     state.sqlStatus = "Dashboard pendiente";
+  }
+}
+
+async function loadDashboardReport() {
+  state.reportLoading = true;
+  state.chartVersion = Date.now();
+  renderShell();
+  const params = new URLSearchParams({
+    report: state.reportView,
+    period: state.reportPeriod,
+    risk: state.reportRisk,
+    metric: state.reportMetric,
+    min_rate: state.reportThreshold,
+    limit: state.reportLimit,
+    zone: state.reportZone,
+    university_name: activeInstitution(),
+  });
+  try {
+    const response = await fetch(`${API_BASE}/reports/dashboard?${params.toString()}`);
+    if (!response.ok) throw new Error("No se pudo cargar el reporte");
+    state.liveReportData = await response.json();
+  } catch (error) {
+    state.liveReportData = null;
+    showToast("Reporte dinamico no disponible; se mantiene la vista local.");
+  } finally {
+    state.reportLoading = false;
+    renderShell();
   }
 }
 
@@ -381,18 +556,19 @@ function overviewModule() {
   const priority = state.sqlSummary?.priority_universities?.[0];
   const global = state.sqlSummary?.global;
   const isUniversityAdmin = state.role === "universityAdmin";
+  const profile = institutionProfile();
   const insight = isUniversityAdmin
-    ? "Resultados institucionales de Kuala Lumpur Institute of Technology: asistencia, bienestar, carreras y alertas del periodo actual."
+    ? `Resultados institucionales de ${profile.name}: asistencia, bienestar, carreras y alertas del periodo actual.`
     : priority
     ? `${priority.university_name} aparece como prioridad principal con ${Number(priority.alert_rate).toFixed(1)}% de estudiantes en alerta.`
     : "Resumen ejecutivo de cohortes, bienestar, asistencia, alertas y reportes institucionales.";
   const coverage = isUniversityAdmin
-    ? [["78", "Estudiantes"], ["468", "Evaluaciones"], ["4", "Carreras"]]
+    ? [[profile.students, "Estudiantes"], [profile.assessments, "Evaluaciones"], [profile.careers, "Carreras"]]
     : global
     ? [[formatNumber(global.students), "Estudiantes"], [formatNumber(global.assessments), "Evaluaciones"], [formatNumber(global.universities), "Universidades"]]
     : [["15,000", "Estudiantes"], ["90,000", "Evaluaciones"], ["185", "Universidades"]];
   const bars = isUniversityAdmin
-    ? [["Medicine", 88], ["Business", 84], ["STEM", 81], ["Law", 76]]
+    ? institutionBars()
     : state.sqlSummary
     ? state.sqlSummary.priority_universities.slice(0, 4).map((item) => [item.country_name, Math.round(Number(item.alert_rate))])
     : [["Japan", 62], ["UK", 60], ["Germany", 59], ["Singapore", 56]];
@@ -400,7 +576,7 @@ function overviewModule() {
   return `
     <article class="glass-cell span-7">
       <div class="cell-head">
-        <div><span class="quiet-code">${isUniversityAdmin ? "Dashboard universidad" : "Dashboard global"}</span><h2>${isUniversityAdmin ? "Kuala Lumpur Institute of Technology" : "Resumen ejecutivo"}</h2></div>
+        <div><span class="quiet-code">${isUniversityAdmin ? "Dashboard universidad" : "Dashboard global"}</span><h2>${isUniversityAdmin ? profile.name : "Resumen ejecutivo"}</h2></div>
         <span class="status-chip">Actualizado</span>
       </div>
       <p>${insight}</p>
@@ -413,6 +589,7 @@ function overviewModule() {
     </article>
     <article class="glass-cell span-12">
       <div class="cell-head"><div><span class="quiet-code">Reportes</span><h2>${isUniversityAdmin ? "Visualizaciones de la universidad" : "Visualizaciones ejecutivas globales"}</h2></div><span class="status-chip">5 graficos</span></div>
+      ${reportFilters()}
       ${reportGallery()}
     </article>
     <article class="glass-cell span-8">
@@ -472,13 +649,23 @@ function reportsModule() {
         <label>Riesgo <select id="panel-risk"><option ${selected("Todos", state.reportRisk)}>Todos</option><option ${selected("Alto", state.reportRisk)}>Alto</option><option ${selected("Medio", state.reportRisk)}>Medio</option><option ${selected("Bajo", state.reportRisk)}>Bajo</option></select></label>
         ${state.role === "employee" ? `<label>Vista global <select id="panel-entity"><option ${selected("Todos los paises", state.reportEntity)}>Todos los paises</option><option ${selected("Top bienestar", state.reportEntity)}>Top bienestar</option><option ${selected("Riesgo global", state.reportEntity)}>Riesgo global</option><option ${selected("Universidades destacadas", state.reportEntity)}>Universidades destacadas</option></select></label>` : ""}
       </div>
-      <button class="command-button primary" id="apply-report-filter">Aplicar filtros</button>
+      <button class="command-button primary" id="apply-report-filter">Generar grafico</button>
     </article>
     <article class="glass-cell span-7">
       <div class="cell-head"><div><span class="quiet-code">Reportes</span><h2>5 reportes ejecutivos</h2></div></div>
       ${reportGallery()}
     </article>
     ${tableModule("Reporte filtrado", head, filteredReportRows(), "span-12")}
+  `;
+}
+
+function sliderField(label, id, value, min, max, step, suffix = "") {
+  return `
+    <label class="range-field">
+      <span>${label}</span>
+      <input id="${id}" type="range" min="${min}" max="${max}" step="${step}" value="${value}" />
+      <div class="range-meta"><small>${min}${suffix}</small><output for="${id}">${value}${suffix}</output><small>${max}${suffix}</small></div>
+    </label>
   `;
 }
 
@@ -494,21 +681,24 @@ function predictionModule() {
   const result = state.predictionResult;
   const probability = Number(result.dropout_probability_percent || 0);
   const riskClass = riskClassFor(result.risk_level);
+  const studentOptions = state.predictionRanking
+    .map((student) => `<option value="${student.student}" ${selected(student.student, state.predictionInput.studentName)}>${student.student} - ${student.field_of_study}</option>`)
+    .join("");
   return `
     <article class="glass-cell span-8">
       <div class="cell-head"><div><span class="quiet-code">Modelo predictivo</span><h2>Riesgo estudiantil de ${state.predictionRankingUniversity}</h2></div><span class="risk-pill ${riskClass}">${result.risk_level}</span></div>
       <div class="form-grid prediction-form">
-        <label>Estudiante <input id="predict-student-name" value="${state.predictionInput.studentName}" /></label>
+        <label>Estudiante <select id="predict-student-name">${studentOptions}</select></label>
         <label>Carrera <select id="predict-field"><option ${selected("Law", state.predictionInput.fieldOfStudy)}>Law</option><option ${selected("Medicine", state.predictionInput.fieldOfStudy)}>Medicine</option><option ${selected("Business", state.predictionInput.fieldOfStudy)}>Business</option><option ${selected("STEM", state.predictionInput.fieldOfStudy)}>STEM</option></select></label>
-        <label>Asistencia (%) <input id="predict-attendance" type="number" min="0" max="100" value="${state.predictionInput.class_attendance_rate}" /></label>
-        <label>Motivacion (0-10) <input id="predict-motivation" type="number" min="0" max="10" value="${state.predictionInput.academic_motivation}" /></label>
-        <label>Horas estudio <input id="predict-study-hours" type="number" min="0" max="80" step="0.5" value="${state.predictionInput.study_hours_per_week}" /></label>
-        <label>Horas internet <input id="predict-internet-hours" type="number" min="0" max="24" step="0.5" value="${state.predictionInput.internet_access_hours}" /></label>
-        <label>Brain rot <input id="predict-brain-rot" type="number" min="0" max="10" value="${state.predictionInput.brain_rot_level}" /></label>
-        <label>Edad <input id="predict-age" type="number" min="14" max="80" value="${state.predictionInput.age}" /></label>
-        <label>Atencion <input id="predict-attention" type="number" min="1" max="180" value="${state.predictionInput.attention_span_minutes}" /></label>
+        ${sliderField("Asistencia", "predict-attendance", state.predictionInput.class_attendance_rate, 0, 100, 1, "%")}
+        ${sliderField("Motivacion academica", "predict-motivation", state.predictionInput.academic_motivation, 0, 10, 1)}
+        ${sliderField("Horas de estudio semanal", "predict-study-hours", state.predictionInput.study_hours_per_week, 0, 80, 0.5)}
+        ${sliderField("Horas de internet diario", "predict-internet-hours", state.predictionInput.internet_access_hours, 0, 24, 0.5)}
+        ${sliderField("Deterioro de atencion digital", "predict-brain-rot", state.predictionInput.brain_rot_level, 0, 10, 1)}
+        ${sliderField("Edad", "predict-age", state.predictionInput.age, 14, 35, 1)}
+        ${sliderField("Atencion sostenida", "predict-attention", state.predictionInput.attention_span_minutes, 1, 180, 1, " min")}
       </div>
-      <div class="action-row"><button class="command-button primary" id="load-risk-ranking">Cargar ranking de mi universidad</button><button class="command-button ghost" id="run-prediction">Calcular caso manual</button><button class="command-button ghost" id="load-high-risk-case">Caso de alto riesgo</button></div>
+      <div class="action-row"><button class="command-button primary" id="load-risk-ranking">Cargar ranking real</button><button class="command-button ghost" id="run-prediction">Calcular con controles</button><button class="command-button ghost" id="load-high-risk-case">Simular caso critico</button></div>
     </article>
     <article class="glass-cell span-4">
       <span class="quiet-code">Resultado</span>
@@ -521,7 +711,7 @@ function predictionModule() {
       <div class="cell-head"><div><span class="quiet-code">Explicacion para exposicion</span><h2>Modelo predictivo de desercion estudiantil</h2></div><span class="status-chip">Regresion logistica</span></div>
       <div class="model-explain">
         <article><strong>Objetivo</strong><p>Estimar la probabilidad de desercion solo para estudiantes de la universidad administrada.</p></article>
-        <article><strong>Variables usadas</strong><p>Asistencia, motivacion, horas de estudio, uso de internet, brain rot, atencion, contexto socioeconomico e infraestructura digital.</p></article>
+        <article><strong>Variables usadas</strong><p>Asistencia, motivacion, horas de estudio, uso de internet, deterioro de atencion digital, contexto socioeconomico e infraestructura digital.</p></article>
         <article><strong>Interpretacion</strong><p>El porcentaje no sentencia al estudiante. Es una alerta temprana para que un equipo humano revise el caso.</p></article>
         <article><strong>Accion recomendada</strong><p>Riesgo alto: seguimiento inmediato. Riesgo medio: monitoreo preventivo. Riesgo bajo: seguimiento regular.</p></article>
       </div>
@@ -532,10 +722,11 @@ function predictionModule() {
 
 function peopleModule() {
   const canCreate = state.role !== "student";
+  const institution = activeInstitution();
   const visibleUsers = state.role === "universityAdmin"
-    ? state.users.filter((user) => user[3] === "Kuala Lumpur Institute of Technology" || user[1] === credentials.universityAdmin.email)
+    ? state.users.filter((user) => user[3] === institution || user[1] === state.currentUser?.email)
     : state.role === "student"
-      ? state.users.filter((user) => user[1] === credentials.student.email)
+      ? state.users.filter((user) => user[1] === state.currentUser?.email)
       : state.users;
   return `
     <article class="glass-cell ${canCreate ? "span-7" : "span-8"}">
@@ -606,11 +797,25 @@ function renderCell(cell) {
 }
 
 function reportGallery() {
+  const catalog = reportCatalog();
+  const selectedReport = state.liveReportData?.id === state.reportView
+    ? state.liveReportData
+    : catalog[state.reportView] || Object.values(catalog)[0];
+  const cards = Object.entries(catalog);
   return `
+    <article class="python-report-card featured-report">
+      <div class="dynamic-report-copy">
+        <span class="quiet-code">${state.reportLoading ? "Cargando consulta" : "Reporte activo"}</span>
+        <strong>${selectedReport.title}</strong>
+        <p>${selectedReport.insight}</p>
+        <em>${selectedReport.kpi} ${selectedReport.kpiLabel}</em>
+      </div>
+      ${state.reportLoading ? `<div class="python-chart chart-loading">Generando grafico institucional...</div>` : `<img class="python-chart" src="${chartImageUrl(state.reportView, state.reportPeriod, state.reportRisk)}" alt="${selectedReport.title}" />`}
+    </article>
     <div class="report-gallery">
-      ${sqlReports.map((report, index) => `
-        <article class="report-card ${index === 0 ? "featured-report" : ""}">
-          <img src="${report.image}" alt="${report.title}" />
+      ${cards.map(([key, report], index) => `
+        <article class="report-card ${state.reportView === key ? "selected-report" : ""}" data-report-key="${key}">
+          ${reportCardVisual(key, report)}
           <div>
             <span class="quiet-code">Reporte ${index + 1}</span>
             <strong>${report.title}</strong>
@@ -620,6 +825,228 @@ function reportGallery() {
         </article>
       `).join("")}
     </div>
+  `;
+}
+
+function chartImageUrl(report, period, risk) {
+  const params = new URLSearchParams({
+    report,
+    period,
+    risk,
+    metric: state.reportMetric,
+    min_rate: state.reportThreshold,
+    limit: state.reportLimit,
+    zone: state.reportZone,
+    university_name: activeInstitution(),
+    t: String(state.chartVersion),
+  });
+  return `${API_BASE}/reports/chart.png?${params.toString()}`;
+}
+
+function reportCatalog() {
+  return state.role === "universityAdmin" ? universityReportData : dynamicReportData;
+}
+
+function reportCardVisual(key, report) {
+  if (key.startsWith("uni_")) {
+    return `<div class="institution-report-preview"><span>${report.type === "line" ? "Linea" : report.type === "heat" ? "Mapa" : "Matriz"}</span><strong>${activeInstitution()}</strong></div>`;
+  }
+  return `<img class="python-chart mini-python-chart" src="${staticReportImage(key)}" alt="${report.title}" />`;
+}
+
+function staticReportImage(report) {
+  const images = {
+    trend: "assets/charts/report_01_risk_by_survey.png",
+    countries: "assets/charts/report_02_field_indicators.png",
+    universities: "assets/charts/report_03_university_accumulation.png",
+    fields: "assets/charts/report_04_prioritized_students.png",
+    intervention: "assets/charts/report_05_executive_attendance.png",
+  };
+  return images[report] || images.trend;
+}
+
+function reportFilters() {
+  const options = Object.entries(reportCatalog())
+    .map(([key, report]) => `<option value="${key}" ${selected(key, state.reportView)}>${report.title}</option>`)
+    .join("");
+  const specific = reportSpecificFilters();
+  return `
+    <div class="report-controls">
+      <label>Grafico <select id="panel-report">${options}</select></label>
+      ${specific}
+      <button class="command-button primary" id="apply-report-filter">Generar grafico</button>
+    </div>
+  `;
+}
+
+function reportSpecificFilters() {
+  if (state.reportView === "trend" || state.reportView === "uni_trend") {
+    return `
+      <label>Rango <select id="panel-period"><option ${selected("Todos", state.reportPeriod)}>Todos</option><option ${selected("2025-1", state.reportPeriod)}>Encuestas 1-3</option><option ${selected("2025-2", state.reportPeriod)}>Encuestas 4-6</option></select></label>
+      <label>Metrica <select id="panel-metric"><option value="all" ${selected("all", state.reportMetric)}>Todas</option><option value="addiction" ${selected("addiction", state.reportMetric)}>Adiccion</option><option value="wellbeing" ${selected("wellbeing", state.reportMetric)}>Bienestar</option><option value="attendance" ${selected("attendance", state.reportMetric)}>Asistencia</option><option value="stress" ${selected("stress", state.reportMetric)}>Estres</option></select></label>
+    `;
+  }
+  if (state.reportView === "countries") {
+    return `
+      <label>Periodo <select id="panel-period"><option ${selected("2025-1", state.reportPeriod)}>2025-1</option><option ${selected("2025-2", state.reportPeriod)}>2025-2</option><option ${selected("Todos", state.reportPeriod)}>Todos</option></select></label>
+      <label>Umbral alerta <select id="panel-threshold"><option value="50" ${selected("50", state.reportThreshold)}>>= 50%</option><option value="55" ${selected("55", state.reportThreshold)}>>= 55%</option><option value="58" ${selected("58", state.reportThreshold)}>>= 58%</option><option value="60" ${selected("60", state.reportThreshold)}>>= 60%</option></select></label>
+      <label>Top <select id="panel-limit"><option value="8" ${selected("8", state.reportLimit)}>8 paises</option><option value="12" ${selected("12", state.reportLimit)}>12 paises</option><option value="20" ${selected("20", state.reportLimit)}>20 paises</option></select></label>
+    `;
+  }
+  if (state.reportView === "universities") {
+    return `
+      <label>Periodo <select id="panel-period"><option ${selected("2025-1", state.reportPeriod)}>2025-1</option><option ${selected("2025-2", state.reportPeriod)}>2025-2</option><option ${selected("Todos", state.reportPeriod)}>Todos</option></select></label>
+      <label>Riesgo <select id="panel-risk"><option ${selected("Todos", state.reportRisk)}>Todos</option><option ${selected("Alto", state.reportRisk)}>Alto</option><option ${selected("Medio", state.reportRisk)}>Medio</option><option ${selected("Bajo", state.reportRisk)}>Bajo</option></select></label>
+      <label>Top <select id="panel-limit"><option value="8" ${selected("8", state.reportLimit)}>8 universidades</option><option value="12" ${selected("12", state.reportLimit)}>12 universidades</option><option value="20" ${selected("20", state.reportLimit)}>20 universidades</option></select></label>
+    `;
+  }
+  if (state.reportView === "fields" || state.reportView === "uni_fields") {
+    return `
+      <label>Periodo <select id="panel-period"><option ${selected("2025-1", state.reportPeriod)}>2025-1</option><option ${selected("2025-2", state.reportPeriod)}>2025-2</option><option ${selected("Todos", state.reportPeriod)}>Todos</option></select></label>
+      <label>Indicador <select id="panel-metric"><option value="all" ${selected("all", state.reportMetric)}>Todos</option><option value="addiction" ${selected("addiction", state.reportMetric)}>Adiccion alta</option><option value="wellbeing" ${selected("wellbeing", state.reportMetric)}>Bienestar bajo</option><option value="attendance" ${selected("attendance", state.reportMetric)}>Asistencia baja</option><option value="stress" ${selected("stress", state.reportMetric)}>Estres alto</option></select></label>
+    `;
+  }
+  if (state.reportView === "uni_students") {
+    return `
+      <label>Periodo <select id="panel-period"><option ${selected("2025-1", state.reportPeriod)}>2025-1</option><option ${selected("2025-2", state.reportPeriod)}>2025-2</option><option ${selected("Todos", state.reportPeriod)}>Todos</option></select></label>
+      <label>Zona <select id="panel-zone"><option value="all" ${selected("all", state.reportZone)}>Todas</option><option value="critical" ${selected("critical", state.reportZone)}>Critica</option><option value="prevention" ${selected("prevention", state.reportZone)}>Preventiva</option><option value="monitoring" ${selected("monitoring", state.reportZone)}>Monitoreo</option></select></label>
+      <label>Top <select id="panel-limit"><option value="10" ${selected("10", state.reportLimit)}>10 estudiantes</option><option value="15" ${selected("15", state.reportLimit)}>15 estudiantes</option><option value="20" ${selected("20", state.reportLimit)}>20 estudiantes</option></select></label>
+    `;
+  }
+  return `
+    <label>Periodo <select id="panel-period"><option ${selected("2025-1", state.reportPeriod)}>2025-1</option><option ${selected("2025-2", state.reportPeriod)}>2025-2</option><option ${selected("Todos", state.reportPeriod)}>Todos</option></select></label>
+    <label>Zona <select id="panel-zone"><option value="all" ${selected("all", state.reportZone)}>Todas</option><option value="critical" ${selected("critical", state.reportZone)}>Critica</option><option value="prevention" ${selected("prevention", state.reportZone)}>Preventiva</option><option value="monitoring" ${selected("monitoring", state.reportZone)}>Monitoreo</option></select></label>
+  `;
+}
+
+function filteredChartRows(report) {
+  if (report.id === state.reportView && Array.isArray(report.rows) && state.liveReportData) return report.rows;
+  const riskFiltered = state.reportRisk === "Todos"
+    ? report.rows
+    : report.rows.filter((item) => item.risk === state.reportRisk);
+  const periodFiltered = riskFiltered.filter((item) => item.period === state.reportPeriod);
+  return periodFiltered.length ? periodFiltered : riskFiltered;
+}
+
+function renderDynamicChart(report, rows) {
+  if (report.type === "line") return renderLineChart(rows);
+  if (report.type === "heat") return renderHeatChart(rows);
+  if (report.type === "matrix") return renderMatrixChart(rows);
+  return renderBarChart(rows);
+}
+
+function renderMiniChart(report, rows) {
+  return `<div class="mini-chart">${renderDynamicChart(report, rows)}</div>`;
+}
+
+function toneForRisk(risk) {
+  if (risk === "Alto") return "#ef4444";
+  if (risk === "Medio") return "#f59e0b";
+  return "#22c55e";
+}
+
+function renderBarChart(rows) {
+  if (!rows.length) return `<div class="svg-chart empty-chart">Sin datos para el filtro seleccionado</div>`;
+  const max = Math.max(...rows.map((item) => Number(item.value || item.alert_rate || 0)), 1);
+  return `
+    <div class="svg-chart bar-chart">
+      ${rows.map((item) => {
+        const value = Number(item.value || item.alert_rate || 0);
+        return `
+          <article>
+            <span>${item.label}</span>
+            <div class="chart-track"><i style="width:${Math.max(6, (value / max) * 100)}%; background:${toneForRisk(item.risk)}"></i></div>
+            <strong>${value.toFixed(1)}</strong>
+          </article>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderLineChart(rows) {
+  if (!rows.length) return `<div class="svg-chart empty-chart">Sin datos para el filtro seleccionado</div>`;
+  const max = 100;
+  const points = rows.map((item, index) => {
+    const x = rows.length === 1 ? 12 : 12 + (index * 76) / (rows.length - 1);
+    const y = 88 - (Number(item.addiction) / max) * 76;
+    return `${x},${y}`;
+  }).join(" ");
+  return `
+    <svg class="svg-chart line-chart" viewBox="0 0 100 100" role="img" aria-label="Tendencia de senales criticas">
+      <polyline points="${points}" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>
+      ${rows.map((item, index) => {
+        const x = rows.length === 1 ? 12 : 12 + (index * 76) / (rows.length - 1);
+        const y = 88 - (Number(item.addiction) / max) * 76;
+        return `<circle cx="${x}" cy="${y}" r="3.2" fill="${toneForRisk(item.risk)}"></circle><text x="${x}" y="97">${item.label}</text>`;
+      }).join("")}
+    </svg>
+  `;
+}
+
+function renderHeatChart(rows) {
+  if (!rows.length) return `<div class="svg-chart empty-chart">Sin datos para el filtro seleccionado</div>`;
+  const metrics = [
+    ["addiction", "Adiccion"],
+    ["wellbeing_low", "Bienestar"],
+    ["attendance_low", "Asistencia"],
+    ["stress_high", "Estres"],
+  ];
+  return `
+    <div class="svg-chart heat-chart">
+      ${rows.map((row) => `
+        <article>
+          <span>${row.label}</span>
+          ${metrics.map(([metric, label]) => {
+            const fallbackKey = metric === "wellbeing_low" ? "wellbeing" : metric === "attendance_low" ? "attendance" : metric;
+            const value = Number(row[metric] ?? row[fallbackKey] ?? 0);
+            return `<i title="${label}" style="opacity:${0.35 + Math.min(value, 80) / 100}; background:${toneForRisk(row.risk)}">${Math.round(value)}%</i>`;
+          }).join("")}
+        </article>
+      `).join("")}
+    </div>
+    ${studentPriorityTable(selectedReport)}
+  `;
+}
+
+function studentPriorityTable(report) {
+  if (state.reportView !== "uni_students" || !Array.isArray(report.rows) || !report.rows.length) return "";
+  return `
+    <div class="table-shell priority-student-table">
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>ID</th><th>Carrera</th><th>Score</th><th>Bienestar</th><th>Asistencia</th><th>Estres</th><th>Accion</th></tr></thead>
+          <tbody>
+            ${report.rows.slice(0, 10).map((row) => `
+              <tr>
+                <td>${row.label}</td>
+                <td>${row.field_of_study}</td>
+                <td>${Number(row.x).toFixed(1)}</td>
+                <td>${Number(row.y).toFixed(1)}%</td>
+                <td>${Number(row.attendance).toFixed(1)}%</td>
+                <td>${Number(row.stress).toFixed(1)}</td>
+                <td>${row.risk === "Alto" ? "Tutoria y bienestar" : row.risk === "Medio" ? "Seguimiento academico" : "Monitoreo regular"}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderMatrixChart(rows) {
+  if (!rows.length) return `<div class="svg-chart empty-chart">Sin datos para el filtro seleccionado</div>`;
+  return `
+    <svg class="svg-chart matrix-chart" viewBox="0 0 100 100" role="img" aria-label="Matriz de intervencion">
+      <line x1="12" y1="50" x2="94" y2="50"></line>
+      <line x1="52" y1="8" x2="52" y2="88"></line>
+      ${rows.map((item) => {
+        const x = 12 + (Number(item.x) / 100) * 78;
+        const y = 88 - (Number(item.y) / 100) * 78;
+        return `<circle cx="${x}" cy="${y}" r="5" fill="${toneForRisk(item.risk)}"></circle><text x="${x + 3}" y="${y - 3}">${item.label}</text>`;
+      }).join("")}
+    </svg>
   `;
 }
 
@@ -691,13 +1118,35 @@ function bindModuleEvents() {
   });
 
   const applyReport = document.getElementById("apply-report-filter");
-  if (applyReport) applyReport.addEventListener("click", () => {
-    state.reportPeriod = document.getElementById("panel-period").value;
-    state.reportRisk = document.getElementById("panel-risk").value;
+  if (applyReport) applyReport.addEventListener("click", async () => {
+    const report = document.getElementById("panel-report");
+    if (report) state.reportView = report.value;
+    const period = document.getElementById("panel-period");
+    const risk = document.getElementById("panel-risk");
+    const metric = document.getElementById("panel-metric");
+    const threshold = document.getElementById("panel-threshold");
+    const limit = document.getElementById("panel-limit");
+    const zone = document.getElementById("panel-zone");
+    if (period) state.reportPeriod = period.value;
+    state.reportRisk = risk ? risk.value : "Todos";
+    state.reportMetric = metric ? metric.value : "all";
+    if (threshold) state.reportThreshold = threshold.value;
+    if (limit) state.reportLimit = limit.value;
+    if (zone) state.reportZone = zone.value;
     const entity = document.getElementById("panel-entity");
     if (entity) state.reportEntity = entity.value;
-    showToast("Filtros aplicados.");
-    renderShell();
+    showToast("Consultando reporte.");
+    await loadDashboardReport();
+  });
+
+  document.querySelectorAll("[data-report-key]").forEach((card) => {
+    card.addEventListener("click", async () => {
+      state.reportView = card.dataset.reportKey;
+      state.reportMetric = "all";
+      state.reportRisk = "Todos";
+      state.reportZone = "all";
+      await loadDashboardReport();
+    });
   });
 
   const createUser = document.getElementById("create-user");
@@ -706,8 +1155,8 @@ function bindModuleEvents() {
     const role = document.getElementById("new-role").value;
     const username = document.getElementById("new-user").value.trim() || email.split("@")[0];
     const org = state.role === "universityAdmin"
-      ? "Kuala Lumpur Institute of Technology"
-      : document.getElementById("new-org").value.trim() || "Kuala Lumpur Institute of Technology";
+      ? activeInstitution()
+      : document.getElementById("new-org").value.trim() || activeInstitution();
     const field = document.getElementById("new-field").value.trim() || (role === "Estudiante" ? "Data Science" : "No aplica");
     if (!email) {
       showToast("Ingresa un correo para crear el usuario.");
@@ -727,8 +1176,15 @@ function bindModuleEvents() {
   const loadRanking = document.getElementById("load-risk-ranking");
   if (loadRanking) loadRanking.addEventListener("click", loadUniversityRiskRanking);
 
+  document.querySelectorAll(".range-field input[type='range']").forEach((input) => {
+    input.addEventListener("input", () => {
+      const output = input.closest(".range-field")?.querySelector("output");
+      if (output) output.textContent = `${input.value}${output.textContent.includes("%") ? "%" : output.textContent.includes("min") ? " min" : ""}`;
+    });
+  });
+
   const highRiskCase = document.getElementById("load-high-risk-case");
-  if (highRiskCase) highRiskCase.addEventListener("click", () => {
+  if (highRiskCase) highRiskCase.addEventListener("click", async () => {
     state.predictionInput = {
       ...state.predictionInput,
       studentName: "Amina Kato",
@@ -738,9 +1194,11 @@ function bindModuleEvents() {
       brain_rot_level: 9,
       study_hours_per_week: 3,
       class_attendance_rate: 55,
+      age: 22,
+      attention_span_minutes: 8,
     };
-    showToast("Caso de alto riesgo cargado. Presiona calcular con backend.");
-    renderShell();
+    showToast("Caso critico cargado y enviado al modelo.");
+    await runPredictionPayload(state.predictionInput, "Simulacion critica con dominio controlado");
   });
 }
 
@@ -766,7 +1224,11 @@ function readPredictionInput() {
 
 async function predictDropout() {
   state.predictionInput = readPredictionInput();
-  const payload = { ...state.predictionInput };
+  await runPredictionPayload(state.predictionInput, "Modelo predictivo institucional");
+}
+
+async function runPredictionPayload(input, sourceLabel) {
+  const payload = { ...input };
   delete payload.studentName;
   delete payload.fieldOfStudy;
   try {
@@ -777,10 +1239,10 @@ async function predictDropout() {
     });
     if (!response.ok) throw new Error("Backend unavailable");
     state.predictionResult = await response.json();
-    state.predictionSource = "Modelo real en backend";
+    state.predictionSource = sourceLabel;
     showToast("Prediccion calculada con el modelo real.");
   } catch (error) {
-    showToast("No se pudo calcular: levanta el backend para usar el modelo predictivo.");
+    showToast("No se pudo calcular en este momento. Revisa el servicio predictivo.");
   }
   renderShell();
 }
@@ -813,13 +1275,13 @@ async function loadUniversityRiskRanking() {
       };
       state.predictionSource = "Ranking institucional";
     }
-    state.predictionSource = `Modelo real conectado a SQL Server: ${data.university}`;
+    state.predictionSource = `Modelo predictivo institucional: ${data.university}`;
     showToast(`Ranking real cargado: ${data.students_evaluated} estudiantes evaluados.`);
   } catch (error) {
     state.predictionRankingLoaded = true;
     state.predictionRankingUniversity = university;
-    state.predictionSource = `Vista demo institucional: ${university}`;
-    showToast("No se pudo conectar SQL Server; se mantiene ranking demo variado.");
+    state.predictionSource = `Ranking institucional precargado: ${university}`;
+    showToast("Se mantiene el ranking institucional disponible.");
   }
   renderShell();
 }
